@@ -24,16 +24,25 @@ export const AnalogClock = ({ backColor, milliseconds }) => {
   );
 }
 
-export const DigitalClock = () => {
+export const DigitalClock = ({ milliseconds }) => {
   return (
-    <Text>Aqui va el relog digital</Text>
+    <Text 
+      style={ digitalStyle.text }>
+      20:30
+    </Text>
   );
 }
 
+const digitalStyle = StyleSheet.create({
+  text: {
+    fontSize: 30
+  }
+});
+
 const analogStyle = StyleSheet.create({
   container: {
-    width: windowWidth * 0.75,
-    height: windowWidth * 0.75,
+    width: windowWidth * 0.60,
+    height: windowWidth * 0.60,
     borderRadius: windowHeight / 2,
     padding: 5
   },
