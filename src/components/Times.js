@@ -50,9 +50,7 @@ const styles = StyleSheet.create({
     borderRadius: 40,
   },
   boxContainer: {
-    borderColor: 'black',
-    borderWidth: 1,
-    width: '95%',
+    width: '100%',
     height: 50,
   },
   container: {
