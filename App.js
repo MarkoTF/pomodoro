@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { AnalogClock, DigitalClock } from './src/components/Clock';
+import { Times } from './src/components/Times'
 
 export default function App() {
   return (
@@ -8,6 +9,7 @@ export default function App() {
       <AnalogClock
 	backColor='aqua'/>
       <DigitalClock/>
+      <Times/>
       <StatusBar style="auto" />
     </View>
   );
