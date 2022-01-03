@@ -3,25 +3,41 @@ import { StyleSheet, Text, View } from 'react-native';
 import { AnalogClock, DigitalClock } from './src/components/Clock';
 import { Times } from './src/components/Times';
 import { GlobalButtons, PButton } from './src/components/Buttons';
-import UilReact from '@iconscout/react-native-unicons/icons/uil-react';
+import { UilSkipForward, UilSetting, UilRefresh, UilStopwatchSlash } from '@iconscout/react-native-unicons';
 
 export default function App() {
   return (
     <View style={ styles.layout }>
-      <View style={styles.container}>
-	<GlobalButtons>
-	  <PButton>
-	    <UilReact size="140" color="#61DAFB"/>
-	  </PButton>
-	  <PButton>
-	    <UilReact size="140" color="#61DAFB"/>
-	  </PButton>
-	</GlobalButtons>
-	<AnalogClock
-	  backColor='aqua'/>
-	<DigitalClock/>
-	<Times/>
-	<StatusBar style="auto" />
+      <StatusBar style="auto" />
+      <View style={ styles.container }>
+	<View>
+	  <GlobalButtons>
+	    <PButton>
+	      <UilSkipForward size="60" color="#61DAFB"/>
+	    </PButton>
+	    <PButton>
+	      <UilSetting size="60" color="#61DAFB"/>
+	    </PButton>
+	  </GlobalButtons>
+	</View>
+	<View>
+	  <View style={ styles.clocks }>
+	    <AnalogClock
+	      backColor='aqua'/>
+	    <DigitalClock/>
+	  </View>
+	  <Times/>
+	</View>
+	<View>
+	  <GlobalButtons>
+	    <PButton>
+	      <UilRefresh size="60" color="#61DAFB"/>
+	    </PButton>
+	    <PButton>
+	      <UilStopwatchSlash size="60" color="#61DAFB"/>
+	    </PButton>
+	  </GlobalButtons>
+	</View>
       </View>
     </View>
   );
@@ -31,8 +47,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+  },
+  clocks: {
+    // borderWidth: 2,
+    // borderColor: 'black',
+    marginBottom: 50,
+    alignItems: 'center'
   },
   layout: {
     flex: 1,
