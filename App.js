@@ -39,7 +39,7 @@ export default function App() {
     }
   });
   const [time, setTime] = useState({
-    current: 20000,
+    current: 0,
     full: 60000
   });
 

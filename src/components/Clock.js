@@ -16,29 +16,27 @@ const windowHeight = Dimensions.get('window').height;
 export const AnalogClock = ({ backColor, fullTime, currentTime }) => {
   const currentDeg = 360 / fullTime * currentTime;
   const restTime = fullTime - currentTime;
-  const clockAni = useRef(new Animated.Value(currentDeg)).current;
-  const clockRotate = () => {
-    Animated.timing(clockAni, {
-      toValue: 360,
-      duration: restTime,
-      useNativeDriver: false,
-    }).start();
-  }
+
+  const clockAni = useRef(new Animated.Value(0)).current;
+  const interpolateRotating = clockAni.interpolate({
+    inputRange: [0, 1],
+    outputRange: [currentDeg + 'deg', '360deg'],
+  });
+
   useEffect(() => {
-    clockRotate();
-    const inter = setInterval(() => {
-      console.log('interval')
-      console.log(clockAni)
-    }, 500)
-    return (clearInterval(inter))
+    Animated.timing(clockAni, {
+      toValue: 1,
+      duration: restTime,
+      useNativeDriver: true,
+    }).start();
   });
   return (
     <View style={ [analogStyle.container, { backgroundColor: backColor }] }>
       <ImageBackground
 	style={ analogStyle.axis }
 	source={ require('../images/analog_clock_1.png') }>
-	<Image
-	  style={ [analogStyle.needle, { transform: [{rotateZ: clockAni._value + 'deg'}] }] }
+	<Animated.Image
+	  style={ [analogStyle.needle, { transform: [{rotateZ: interpolateRotating}] }] }
 	  source={ require('../images/analog_clock_2.png') }/>
       </ImageBackground>
     </View>
