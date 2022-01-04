@@ -3,55 +3,60 @@ import {
   Text,
   StyleSheet
 } from 'react-native';
+import { PhoneDimentionsContext } from '../utils/context'
+import { useMemo, useContext } from 'react';
 
-export const Times = ({ times }) => {
-  const times_test = {
-    pomodoro: {
-      duration: 60000,
-      color: 'green',
-      times: 3,
-    },
-    shortBreak: {
-      duration: 25000,
-      color: 'blue',
-      times: 2,
-    },
-    longBreak: {
-      duration: 60000,
-      color: 'red',
-      times: 1
+export const Times = ({ longRest, works, rests, current }) => {
+  const dimentions = useContext(PhoneDimentionsContext)
+  const total_items = works.count + rests.count
+  const times = useMemo(() => {
+    const items = [];
+    const itemWidth = ((dimentions.width - 40) / (total_items)) - 3;
+    const itemTemplate = (i, color, current) => {
+      return (
+	<View key={ i }>
+	  <View style={{ paddingBottom: 3, borderBottomWidth: current ? 1 : 0 }}>
+	    <View style={ [styles.time, { backgroundColor: color, width: itemWidth }] }/>
+	  </View>
+	</View>
+      );
     }
-  }
+    for (let i = 0; i <= total_items - 1; i++) {
+      if (i % 2 === 0) {
+	items.push(itemTemplate(i, works.color, (i === current) ? true : false));
+      } else {
+	items.push(itemTemplate(i, rests.color, (i === current) ? true : false));
+      }
+    }
+    return items;
+  }, [works.count, rests.count]);
+
   return (
     <View style={ styles.boxContainer }>
       <View style={ styles.container }>
-	<View style={ [styles.time, { width: 50 }] }>
-	</View>
-	<View style={ [styles.time, { width: 50 }] }>
-	</View>
-	<View style={ [styles.time, { width: 50 }] }>
-	</View>
-	<View style={ [styles.time, { width: 50 }] }>
-	</View>
-	<View style={ [styles.time, { width: 50 }] }>
-	</View>
+	{ times }
       </View>
       <View style={ styles.container }>
-	<View style={ [styles.time, { width: '100%' }] }/>
+	<View style={{ width: '100%', height: 'auto' }}>
+	  <View style={[styles.time, { paddingBottom: 3, borderBottomWidth: (total_items === current) ? 1 : 0, width: '100%', height: 'auto' }]}>
+	    <View style={ [styles.time, { width: '100%', backgroundColor: longRest.color }] }/>
+	  </View>
+	</View>
       </View>
     </View>
   )
 }
 
+const containerW = 80;
+
 const styles = StyleSheet.create({
   time: {
-    backgroundColor: 'red',
-    height: 20,
+    height: containerW - 50,
     borderRadius: 40,
   },
   boxContainer: {
     width: '100%',
-    height: 50,
+    height: containerW,
   },
   container: {
     flexDirection: 'row',

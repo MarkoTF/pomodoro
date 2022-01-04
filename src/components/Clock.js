@@ -4,8 +4,9 @@ import {
   StyleSheet,
   Image,
   ImageBackground,
-  Dimensions,
+  Dimensions
 } from 'react-native';
+import { PhoneDimentionsContext } from '../utils/context'
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
