@@ -40,7 +40,7 @@ export default function App() {
   });
   const [time, setTime] = useState({
     current: 0,
-    full: 60000
+    full: 120000
   });
 
   return (
@@ -51,10 +51,10 @@ export default function App() {
 	  <View>
 	    <GlobalButtons>
 	      <PButton>
-		<UilSkipForward size="60" color="#61DAFB"/>
+		<UilSkipForward size="60" color="#4A4A4A"/>
 	      </PButton>
 	      <PButton>
-		<UilSetting size="60" color="#61DAFB"/>
+		<UilSetting size="60" color="#4A4A4A"/>
 	      </PButton>
 	    </GlobalButtons>
 	  </View>
@@ -65,7 +65,7 @@ export default function App() {
 		currentTime={ time.current }
 		backColor='aqua'/>
 	      <DigitalClock
-		time={ EXAMPLE_TIME }/>
+		time={ time.full - time.current }/>
 	    </View>
 	    <Times
 	      works={ timesItems.works }
@@ -76,10 +76,10 @@ export default function App() {
 	  <View>
 	    <GlobalButtons>
 	      <PButton>
-		<UilRefresh size="60" color="#61DAFB"/>
+		<UilRefresh size="60" color="#4A4A4A"/>
 	      </PButton>
 	      <PButton>
-		<UilStopwatchSlash size="60" color="#61DAFB"/>
+		<UilStopwatchSlash size="60" color="#4A4A4A"/>
 	      </PButton>
 	    </GlobalButtons>
 	  </View>

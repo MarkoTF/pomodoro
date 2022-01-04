@@ -7,7 +7,7 @@ import {
   Dimensions,
   Animated
 } from 'react-native';
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { PhoneDimentionsContext } from '../utils/context'
 
 const windowWidth = Dimensions.get('window').width;
@@ -30,6 +30,7 @@ export const AnalogClock = ({ backColor, fullTime, currentTime }) => {
       useNativeDriver: true,
     }).start();
   });
+
   return (
     <View style={ [analogStyle.container, { backgroundColor: backColor }] }>
       <ImageBackground
@@ -43,18 +44,46 @@ export const AnalogClock = ({ backColor, fullTime, currentTime }) => {
   );
 }
 
-export const DigitalClock = ({ milliseconds }) => {
+export const DigitalClock = ({ time }) => {
+  const [currentTime, setCurrentTime] = useState(time);
+  const [timeString, setTimeString] = useState('0:0');
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const current = currentTime - 1000;
+      const calculateT = calcultateTime(current);
+      let currentString = calculateT.minutes + ':' + calculateT.seconds;
+      if (current <= 0) {
+	currentString = '0:0'
+	setTimeString(currentString);
+	return () => clearInterval(timer);
+      }
+      setTimeString(currentString);
+      setCurrentTime(current);
+    }, 1000);
+    return () => clearInterval(timer);
+  });
+
   return (
     <Text 
       style={ digitalStyle.text }>
-      20:30
+      { timeString }
     </Text>
   );
 }
 
+const calcultateTime = (milliseconds) => {
+  const sec_num = milliseconds / 1000;
+  let seconds_used = 0;
+  const minutes = Math.floor(sec_num / 60);
+  if (minutes > 0) seconds_used += (minutes * 60);
+  const seconds = sec_num - seconds_used;
+  return { seconds: seconds, minutes: minutes }
+}
+
 const digitalStyle = StyleSheet.create({
   text: {
-    fontSize: 30
+    fontSize: 35
   }
 });
 
