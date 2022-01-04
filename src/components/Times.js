@@ -38,7 +38,15 @@ export const Times = ({ longRest, works, rests, current }) => {
       </View>
       <View style={ styles.container }>
 	<View style={{ width: '100%', height: 'auto' }}>
-	  <View style={[styles.time, { paddingBottom: 3, borderBottomWidth: (total_items === current) ? 1 : 0, width: '100%', height: 'auto' }]}>
+	  <View style={[
+	    styles.time, 
+	    {
+	      paddingBottom: 3, 
+	      borderBottomWidth: (total_items === current) ? 1 : 0, 
+	      width: '100%', 
+	      height: 'auto' 
+	    }
+	  ]}>
 	    <View style={ [styles.time, { width: '100%', backgroundColor: longRest.color }] }/>
 	  </View>
 	</View>

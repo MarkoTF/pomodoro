@@ -34,10 +34,14 @@ export default function App() {
     },
     longRest: {
       color: 'gray',
-      count: 3,
+      count: 1,
       time: 5000
     }
-  })
+  });
+  const [time, setTime] = useState({
+    current: 20000,
+    full: 60000
+  });
 
   return (
     <PhoneDimentionsContext.Provider value={{width: dimensions.width, height: dimensions.height}}>
@@ -57,7 +61,8 @@ export default function App() {
 	  <View>
 	    <View style={ styles.clocks }>
 	      <AnalogClock
-		time={ EXAMPLE_TIME }
+		fullTime={ time.full }
+		currentTime={ time.current }
 		backColor='aqua'/>
 	      <DigitalClock
 		time={ EXAMPLE_TIME }/>
