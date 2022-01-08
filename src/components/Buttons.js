@@ -13,9 +13,10 @@ export const GlobalButtons = ({ children }) => {
   );
 }
 
-export const PButton = ({ children }) => {
+export const PButton = ({ children, action }) => {
   return (
-    <Pressable>
+    <Pressable
+      onPress={ () => action() }>
       { children }
     </Pressable>
   );

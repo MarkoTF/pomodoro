@@ -2,7 +2,8 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet,
   Text,
   View,
-  Dimensions
+  Dimensions,
+  Modal
 } from 'react-native';
 import {
   UilSkipForward,
@@ -15,12 +16,14 @@ import { AnalogClock, DigitalClock } from './src/components/Clock';
 import { Times } from './src/components/Times';
 import { GlobalButtons, PButton } from './src/components/Buttons';
 import { PhoneDimentionsContext } from './src/utils/context';
+import Settings from './src/views/Settings';
 
 const EXAMPLE_TIME = 2000;
 
 export default function App() {
   const dimensions = useContext(PhoneDimentionsContext)
   const [currentTime, setCurrentTime] = useState(7);
+  const [toggleMotal, setToggleModal] = useState(true);
   const [timesItems, setTimesItems] = useState({
     works: {
       color: 'blue',
@@ -46,6 +49,9 @@ export default function App() {
   return (
     <PhoneDimentionsContext.Provider value={{width: dimensions.width, height: dimensions.height}}>
       <View style={ styles.layout }>
+	<Settings
+	  isOpen={ toggleMotal }
+	  toggleMotal={ () => setToggleModal(!toggleMotal) }/>
 	<StatusBar style="auto" />
 	<View style={ styles.container }>
 	  <View>
@@ -53,7 +59,8 @@ export default function App() {
 	      <PButton>
 		<UilSkipForward size="60" color="#4A4A4A"/>
 	      </PButton>
-	      <PButton>
+	      <PButton
+		action={ () => setToggleModal(!toggleMotal) }>
 		<UilSetting size="60" color="#4A4A4A"/>
 	      </PButton>
 	    </GlobalButtons>
