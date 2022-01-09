@@ -45,9 +45,32 @@ export const changeActive = (id) => new Promise((resolve, reject) => {
   });
 });
 
+export const removeProfile = (id) => new Promise((resolve, reject) => {
+  const db = openDatabase();
+  db.transaction((tx) => {
+    tx.executeSql(
+      'DELETE FROM profile WHERE id = ?;', [id],
+      (_, result) => {
+	console.log('delete from database');
+	tx.executeSql(
+	  'SELECT * FROM profile LIMIT 1;',[],
+	  (_, result) => {
+	    console.log(result);
+	    changeActive(result.rows._array[0].id).then((newActive) => {
+	      console.log(newActive);
+	      resolve(newActive);
+	    });
+	  }
+	);
+      }, (_, err) => {
+	reject(err)
+      }
+    );
+  });
+});
+
 export const createRecord = (name, active, pColor, pValue, pTimes, srColor, srValue, srTimes, lrColor, lsValue, lsTimes, sound, vibrate) => new Promise((resolve, reject) =>{
   const db = openDatabase();
-  console.log('reciasdfa:_1')
   db.transaction((tx) => {
     console.log('dentro tx')
     tx.executeSql(
@@ -76,6 +99,36 @@ export const createRecord = (name, active, pColor, pValue, pTimes, srColor, srVa
       (_, err) => {
 	console.log(err);
 	reject(err)
+      }
+    );
+  });
+});
+
+export const updateProfile = (id, name, active, pColor, pValue, pTimes, srColor, srValue, srTimes, lrColor, lsValue, lsTimes, sound, vibrate) => new Promise((resolve, reject) => {
+  const db = openDatabase();
+  console.log('update, database')
+  db.transaction((tx) => {
+    tx.executeSql(
+      `UPDATE profile SET\
+	name = ?,\
+	active = ?,\
+	pomodoro_color = ?,\
+	pomodoro_value = ?,\
+	pomodoro_times = ?,\
+	short_rest_color = ?,\
+	short_rest_value = ?,\
+	short_rest_times = ?,\
+	long_rest_color = ?,\
+	long_rest_value = ?,\
+	long_rest_times = ?,\
+	sound = ?,\
+	vibrate = ?\
+	WHERE id = ?;`,
+      [name, active, pColor, pValue, pTimes, srColor, srValue, srTimes, lrColor, lsValue, lsTimes, sound, vibrate, id],
+      (_, result) => {
+	resolve(result)
+      }, (_, err) => {
+	reject(err);
       }
     );
   });

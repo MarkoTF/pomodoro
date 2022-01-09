@@ -19,7 +19,7 @@ import { GlobalButtons, PButton } from './src/components/Buttons';
 import { PhoneDimentionsContext, ProfileContext } from './src/utils/context';
 import { openDatabase, createRecord, getActivated } from './src/utils/database';
 import Settings from './src/views/Settings';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useIsFocused } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const EXAMPLE_TIME = 2000;
@@ -107,6 +107,8 @@ export default function App() {
 }
 
 const Home = ({ navigation }) => {
+  const isFocused = useIsFocused();
+  const currentP = useContext(ProfileContext);
   const dimensions = useContext(PhoneDimentionsContext)
   const [currentTime, setCurrentTime] = useState(7);
   const [toggleMotal, setToggleModal] = useState(true);
@@ -132,8 +134,13 @@ const Home = ({ navigation }) => {
     full: 120000
   });
 
+  if (isFocused) {
+    console.log('fousc');
+    console.log(currentP.user)
+  }
+
   return (
-    <PhoneDimentionsContext.Provider value={{width: dimensions.width, height: dimensions.height}}>
+     <PhoneDimentionsContext.Provider value={{width: dimensions.width, height: dimensions.height}}>
       <View style={ styles.layout }>
 	<StatusBar style="auto" />
 	<View style={ styles.container }>

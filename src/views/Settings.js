@@ -21,13 +21,19 @@ import { useState, useContext, useEffect, updateState } from 'react';
 import { GlobalButtons, PButton } from '../components/Buttons'
 import { PhoneDimentionsContext, ProfileContext } from '../utils/context';
 import { Picker } from '@react-native-picker/picker';
-import { createRecord, changeActive } from '../utils/database';
+import { openDatabase, removeProfile, createRecord, changeActive, updateProfile } from '../utils/database';
+import { NavigationContainer, useIsFocused } from '@react-navigation/native';
+
+const db = openDatabase();
 
 export default function Settings({ isOpen, toggleMotal, navigation }) {
   const currentP = useContext(ProfileContext);
   const [profile, setProfile] = useState('java');
   const [toggleModal, setToggleModal] = useState(false);
   const [newName, setNewName] = useState('');
+  const [togglePomodoroColorModal, setTogglePomodoroColorModal] = useState(false)
+  const [toggleShortColorModal, setToggleShortColorModal] = useState(false)
+  const [toggleLongColorModal, setToggleLongColorModal] = useState(false)
   const [pomodoroConf, setPomodoroConf] = useState({
     confColor: currentP.user.pomodoro_color,
     value: currentP.user.pomodoro_value,
@@ -46,27 +52,62 @@ export default function Settings({ isOpen, toggleMotal, navigation }) {
   });
 
   useEffect(() => {
-    console.log('hola---------------------------------');
-    console.log(currentP.user);
-  }, []);
+    restart();
+  }, [currentP]);
+
+  const restart = () => {
+    setPomodoroConf({
+      value: currentP.user.pomodoro_value,
+      confColor: currentP.user.pomodoro_color
+    });
+    setShortRestConf({
+      confColor: currentP.user.short_rest_color,
+      value: currentP.user.short_rest_value,
+    });
+    setLongRestConf({
+      confColor: currentP.user.long_rest_color,
+      value: currentP.user.long_rest_value,
+    });
+    setSoundAndVibrate({
+      vibrate: currentP.user.sound,
+      sound: currentP.user.vibrate
+    });
+  }
 
   const newProfile = () => {
     setToggleModal(!toggleModal);
     createRecord(newName, 0, pomodoroConf.confColor, pomodoroConf.value, 4, shrotRestConf.confColor, shrotRestConf.value, 3, longRestConf.confColor, longRestConf.value, 1, soundAndVibrate.sound, soundAndVibrate.vibrate).then((record, err) => {
       changeActive(record.insertId).then((result, err) => {
 	const currentPrifile = result.rows._array[0]
-	console.log(currentPrifile);
 	currentP.updateUser(currentPrifile);
       });
     });
   }
 
+  const writeProfile = () => {
+    updateProfile(currentP.user.id, currentP.user.name, 0, pomodoroConf.confColor, pomodoroConf.value, 4, shrotRestConf.confColor, shrotRestConf.value, 3, longRestConf.confColor, longRestConf.value, 1, soundAndVibrate.sound, soundAndVibrate.vibrate).then((result, err) => {
+      db.transaction((tx) => {
+	tx.executeSql(
+	  "SELECT * FROM profile WHERE id = ?", [currentP.user.id],
+	  (_, result) => {
+	    const userData = result.rows._array[0];+
+	    currentP.updateUser(userData);
+	  }
+	);
+      });
+    });
+  }
+
+  const deleteProfile = () => {
+    removeProfile(currentP.user.id).then((newCurrent) => {
+      const userData = newCurrent.rows._array[0];
+      currentP.updateUser(userData);
+    });
+  }
+
   const select = (itemValue) => {
-    console.log('----------------------------------')
-    console.log(itemValue)
     changeActive(itemValue).then((result, err) => {
       const currentPrifile = result.rows._array[0]
-      console.log(currentPrifile);
       currentP.updateUser(currentPrifile);
     });
   }
@@ -80,7 +121,8 @@ export default function Settings({ isOpen, toggleMotal, navigation }) {
 	      action={ () => navigation.goBack() }>
 	      <UilArrowLeft size="60" color="#4A4A4A"/>
 	    </PButton>
-	    <PButton>
+	    <PButton
+	      action={ () => writeProfile() }>
 	      <UilSave size="60" color="#4A4A4A"/>
 	    </PButton>
 	  </GlobalButtons>
@@ -104,6 +146,7 @@ export default function Settings({ isOpen, toggleMotal, navigation }) {
 	      confColor={ pomodoroConf.confColor }
 	      mainColor={ pomodoroConf.confColor }
 	      confValue={ pomodoroConf.value }
+	      toggleModal={ () => setTogglePomodoroColorModal(!togglePomodoroColorModal) }
 	      leftAction={ () => setPomodoroConf(Object.assign({}, {...pomodoroConf, value: pomodoroConf.value - 1})) }
 	      rightAction={ () => setPomodoroConf(Object.assign({}, {...pomodoroConf, value: pomodoroConf.value + 1})) }
 	      secundaryColor={ shrotRestConf.confColor }/>
@@ -114,6 +157,7 @@ export default function Settings({ isOpen, toggleMotal, navigation }) {
 	      confColor={ shrotRestConf.confColor }
 	      confValue={ shrotRestConf.value }
 	      mainColor={ pomodoroConf.confColor }
+	      toggleModal={ () => setToggleShortColorModal(!toggleShortColorModal) }
 	      leftAction={ () => setShortRestConf(Object.assign({}, {...shrotRestConf, value: shrotRestConf.value - 1})) }
 	      rightAction={ () => setShortRestConf(Object.assign({}, {...shrotRestConf, value: shrotRestConf.value + 1})) }
 	      secundaryColor={ shrotRestConf.confColor }/>
@@ -126,6 +170,7 @@ export default function Settings({ isOpen, toggleMotal, navigation }) {
 	      secundaryColor={ shrotRestConf.confColor }
 	      leftAction={ () => setLongRestConf(Object.assign({}, {...longRestConf, value: longRestConf.value - 1})) }
 	      rightAction={ () => setLongRestConf(Object.assign({}, {...longRestConf, value: longRestConf.value + 1})) }
+	      toggleModal={ () => setToggleLongColorModal(!toggleLongColorModal) }
 	      confColor={ longRestConf.confColor }/>
 	  </View>
 	  <View style={ commonConfigStyles.paddingSection }>
@@ -138,10 +183,12 @@ export default function Settings({ isOpen, toggleMotal, navigation }) {
 	</View>
 	<View>
 	  <GlobalButtons>
-	    <PButton>
+	    <PButton
+	      action={ () => deleteProfile() }>
 	      <UilTrashAlt size="60" color="#4A4A4A"/>
 	    </PButton>
-	    <PButton>
+	    <PButton
+	      action={ () => restart() }>
 	      <UilTimes size="60" color="#4A4A4A"/>
 	    </PButton>
 	  </GlobalButtons>
@@ -155,9 +202,56 @@ export default function Settings({ isOpen, toggleMotal, navigation }) {
 	  onChangeText={ (text) => setNewName(text) }
 	  style={selectModalStyle.inputTextStyle}/>
       </SelectModal>
+      <SelectModal 
+	visible={ togglePomodoroColorModal }
+	toggleModal={ () => setTogglePomodoroColorModal(!togglePomodoroColorModal) }>
+	<SelectColor
+	  action={ (color) => setPomodoroConf({ confColor: color, value: pomodoroConf.value }) }/>
+      </SelectModal>
+      <SelectModal 
+	visible={ toggleShortColorModal }
+	toggleModal={ () => setToggleShortColorModal(!toggleShortColorModal) }>
+	<SelectColor
+	  action={ (color) => setShortRestConf({ confColor: color, value: shrotRestConf.value }) }/>
+      </SelectModal>
+      <SelectModal 
+	visible={ toggleLongColorModal }
+	toggleModal={ () => setToggleLongColorModal(!toggleLongColorModal) }>
+	<SelectColor
+	  action={ (color) => setLongRestConf({ confColor: color, value: longRestConf.value }) }/>
+      </SelectModal>
     </View>
   );
 }
+
+const SelectColor = ({ action }) => {
+  return (
+    <View style={ selectorColorStyles.content }>
+      <Pressable style={ [selectorColorStyles.square, { backgroundColor: '#5E8ED7' }] } onPress={ () => action('#5E8ED7') }></Pressable>
+      <Pressable style={ [selectorColorStyles.square, { backgroundColor: '#E54881' }] } onPress={ () => action('#E54881') }></Pressable>
+      <Pressable style={ [selectorColorStyles.square, { backgroundColor: '#86DCEF' }] } onPress={ () => action('#86DCEF') }></Pressable>
+      <Pressable style={ [selectorColorStyles.square, { backgroundColor: '#FB738E' }] } onPress={ () => action('#FB738E') }></Pressable>
+      <Pressable style={ [selectorColorStyles.square, { backgroundColor: '#A09FE6' }] } onPress={ () => action('#A09FE6') }></Pressable>
+      <Pressable style={ [selectorColorStyles.square, { backgroundColor: '#4FAAA1' }] } onPress={ () => action('#4FAAA1') }></Pressable>
+      <Pressable style={ [selectorColorStyles.square, { backgroundColor: '#FBFA93' }] } onPress={ () => action('#FBFA93') }></Pressable>
+      <Pressable style={ [selectorColorStyles.square, { backgroundColor: '#FFD380' }] } onPress={ () => action('#FFD380') }></Pressable>
+      <Pressable style={ [selectorColorStyles.square, { backgroundColor: '#FD88E0' }] } onPress={ () => action('#FD88E0') }></Pressable>
+    </View>
+  );
+}
+
+const selectorColorStyles = StyleSheet.create({
+  square: {
+    height: 80,
+    width: 80,
+    margin: 10,
+  },
+  content: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between'
+  }
+});
 
 const SelectModal = ({ children, visible, toggleModal }) => {
   return (
@@ -211,14 +305,17 @@ const ListItemConfig = ({ text, mainColor, secundaryColor, confValue, confValues
   );
 }
 
-const RangeItemConfig = ({ text, mainColor, secundaryColor, confColor, rightAction, leftAction, confValue }) => {
+const RangeItemConfig = ({ text, mainColor, secundaryColor, confColor, rightAction, leftAction, confValue, toggleModal }) => {
   return (
     <View>
       <View style={ rangeConfigStyles.titleContainer }>
 	<Text 
 	  style={ commonConfigStyles.text }>{ text }</Text>
 	<View style={ [rangeConfigStyles.textColorContainer, { backgroundColor: confColor }] }>
-	  <Text>{ confColor }</Text>
+	  <Pressable 
+	    onPress={ () => toggleModal() }>
+	    <Text>{ confColor }</Text>
+	  </Pressable>
 	</View>
       </View>
       <View style={ listConfigStyles.configSection }>
