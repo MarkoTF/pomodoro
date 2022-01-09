@@ -4,7 +4,7 @@ import {
   Text,
   View,
   Dimensions,
-  Modal
+  Modal,
 } from 'react-native';
 import {
   UilSkipForward,
@@ -19,15 +19,17 @@ import { GlobalButtons, PButton } from './src/components/Buttons';
 import { PhoneDimentionsContext, ProfileContext } from './src/utils/context';
 import { openDatabase, createRecord, getActivated } from './src/utils/database';
 import Settings from './src/views/Settings';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const EXAMPLE_TIME = 2000;
 const db = openDatabase();
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [currentP, setCurrentP] = useState(null);
 
   useEffect(() => {
-    console.log(currentP);
     db.transaction((tx) => {
       tx.executeSql(
         "CREATE TABLE IF NOT EXISTS profile (\
@@ -50,13 +52,49 @@ export default function App() {
       getActivated().then(profile => {
 	const currentPrifile = profile.rows._array[0]
 	console.log(currentPrifile);
-	setCurrentP(currentPrifile);
+	db.transaction((tx) => {
+	  tx.executeSql(
+	    `SELECT * FROM profile`, [],
+	    (tranx, profiles) => {
+	      console.log(profiles.rows);
+	      setCurrentP({
+		user: currentPrifile,
+		users: profiles.rows._array,
+		updateUser: setUser
+	      });
+	    }
+	  );
+	});
       });
     });
   }, []);
-  
+
+  const setUser = (user) => {
+    db.transaction((tx) => {
+      tx.executeSql(
+	`SELECT * FROM profile`, [],
+	(tranx, profiles) => {
+	  // console.log(profiles.rows);
+	  // console.log(user);
+	  setCurrentP({
+	    user: user,
+	    users: profiles.rows._array,
+	    updateUser: setUser
+	  });
+	}
+      );
+    });
+  }
+
   const toRender = currentP ? (
-    <Home/>
+    <ProfileContext.Provider value={ currentP }>
+      <NavigationContainer>
+	<Stack.Navigator initialRouteName="Home">
+	  <Stack.Screen name="Home" component={Home} />
+	  <Stack.Screen name="Settings" component={ Settings } />
+	</Stack.Navigator>
+      </NavigationContainer>
+    </ProfileContext.Provider>
   ) : (
     <View>
       <Text>Cargando...</Text>
@@ -64,13 +102,11 @@ export default function App() {
   );
 
   return (
-    <ProfileContext.Provider value={ currentP }>
-      { toRender }
-    </ProfileContext.Provider>
+    toRender
   );
 }
 
-const Home = () => {
+const Home = ({ navigation }) => {
   const dimensions = useContext(PhoneDimentionsContext)
   const [currentTime, setCurrentTime] = useState(7);
   const [toggleMotal, setToggleModal] = useState(true);
@@ -99,9 +135,6 @@ const Home = () => {
   return (
     <PhoneDimentionsContext.Provider value={{width: dimensions.width, height: dimensions.height}}>
       <View style={ styles.layout }>
-	<Settings
-	  isOpen={ toggleMotal }
-	  toggleMotal={ () => setToggleModal(!toggleMotal) }/>
 	<StatusBar style="auto" />
 	<View style={ styles.container }>
 	  <View>
@@ -110,7 +143,7 @@ const Home = () => {
 		<UilSkipForward size="60" color="#4A4A4A"/>
 	      </PButton>
 	      <PButton
-		action={ () => setToggleModal(!toggleMotal) }>
+		action={ () => navigation.navigate('Settings') }>
 		<UilSetting size="60" color="#4A4A4A"/>
 	      </PButton>
 	    </GlobalButtons>

@@ -10,6 +10,41 @@ export const openDatabase = () => {
   return SQLite.openDatabase(DB_NAME);
 }
 
+export const changeActive = (id) => new Promise((resolve, reject) => {
+  console.log('el id', id)
+  const db = openDatabase();
+  db.transaction((tx) => {
+    tx.executeSql(
+      `UPDATE profile SET active = 0 WHERE active = 1;`, [],
+      (_, desactiveRecord) => {
+	console.log('se actualiz[o el primero]')
+	tx.executeSql(
+	  `UPDATE profile SET active = 1 WHERE id = ?`, [id],
+	  (_, activeRecord) => {
+		console.log(id);
+	    console.log('se actualiz[o el seguno]')
+	    tx.executeSql(
+	      `SELECT * FROM profile WHERE id = ?`, [id],
+	      (_, saRecord) => {
+		console.log('Se creo con exito');
+		console.log(saRecord);
+		resolve(saRecord);
+	      }, (_, err) => {
+		console.log('error3', err, id);
+	      }
+	    )
+	  }, (_, err) => {
+	    console.log('error2');
+	    console.log(err);
+	  }
+	)
+      }, (_, err) => {
+	console.log(err);
+      }
+    );
+  });
+});
+
 export const createRecord = (name, active, pColor, pValue, pTimes, srColor, srValue, srTimes, lrColor, lsValue, lsTimes, sound, vibrate) => new Promise((resolve, reject) =>{
   const db = openDatabase();
   console.log('reciasdfa:_1')
