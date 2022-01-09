@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet,
+import { 
+  StyleSheet,
   Text,
   View,
   Dimensions,
@@ -11,16 +12,65 @@ import {
   UilRefresh,
   UilStopwatchSlash 
 } from '@iconscout/react-native-unicons';
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { AnalogClock, DigitalClock } from './src/components/Clock';
 import { Times } from './src/components/Times';
 import { GlobalButtons, PButton } from './src/components/Buttons';
-import { PhoneDimentionsContext } from './src/utils/context';
+import { PhoneDimentionsContext, ProfileContext } from './src/utils/context';
+import { openDatabase, createRecord, getActivated } from './src/utils/database';
 import Settings from './src/views/Settings';
 
 const EXAMPLE_TIME = 2000;
+const db = openDatabase();
 
 export default function App() {
+  const [currentP, setCurrentP] = useState(null);
+
+  useEffect(() => {
+    console.log(currentP);
+    db.transaction((tx) => {
+      tx.executeSql(
+        "CREATE TABLE IF NOT EXISTS profile (\
+	  id INTEGER PRIMARY KEY NOT NULL,\
+	  name TEXT,\
+	  active INT,\
+	  pomodoro_color TEXT,\
+	  pomodoro_value INT,\
+	  pomodoro_times INT,\
+	  short_rest_color TEXT,\
+	  short_rest_times INT,\
+	  short_rest_value INT,\
+	  long_rest_color TEXT,\
+	  long_rest_times INT,\
+	  long_rest_value INT,\
+	  sound TEXT,\
+	  vibrate INT\
+	);"
+      );
+      getActivated().then(profile => {
+	const currentPrifile = profile.rows._array[0]
+	console.log(currentPrifile);
+	setCurrentP(currentPrifile);
+      });
+    });
+  }, []);
+  
+  const toRender = currentP ? (
+    <Home/>
+  ) : (
+    <View>
+      <Text>Cargando...</Text>
+    </View>
+  );
+
+  return (
+    <ProfileContext.Provider value={ currentP }>
+      { toRender }
+    </ProfileContext.Provider>
+  );
+}
+
+const Home = () => {
   const dimensions = useContext(PhoneDimentionsContext)
   const [currentTime, setCurrentTime] = useState(7);
   const [toggleMotal, setToggleModal] = useState(true);

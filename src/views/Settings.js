@@ -16,12 +16,35 @@ import {
   UilMobileVibrate,
   UilMultiply,
 } from '@iconscout/react-native-unicons';
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { GlobalButtons, PButton } from '../components/Buttons'
-import { PhoneDimentionsContext } from '../utils/context';
+import { PhoneDimentionsContext, ProfileContext } from '../utils/context';
 import { Picker } from '@react-native-picker/picker';
 
 export default function Settings({ isOpen, toggleMotal }) {
+  const currentP = useContext(ProfileContext);
+  const [profile, setProfile] = useState('java');
+  const [pomodoroConf, setPomodoroConf] = useState({
+    confColor: currentP.pomodoro_color,
+    value: currentP.pomodoro_value,
+  });
+  const [shrotRestConf, setShortRestConf] = useState({
+    confColor: currentP.short_rest_color,
+    value: currentP.short_rest_value,
+  });
+  const [longRestConf, setLongRestConf] = useState({
+    confColor: currentP.long_rest_color,
+    value: currentP.long_rest_value,
+  });
+  const [soundAndVibrate, setSoundAndVibrate] = useState({
+    vibrate: currentP.sound,
+    sound: currentP.vibrate
+  });
+
+  useEffect(() => {
+    console.log('hola');
+  }, []);
+
   return (
     <View>
       <Modal
@@ -42,31 +65,51 @@ export default function Settings({ isOpen, toggleMotal }) {
 	      </GlobalButtons>
 	    </View>
 	    <View style={{ flex: 1 }}>
-	      <ListItemConfig
-		btnIcon={ <UilPlus size='20' color='#4a4a4a'/> }
-		text='Perfil'
-		mainColor='blue'
-		secundaryColor='green'/>
-	      <RangeItemConfig
-		text='Pomodoro'
-		mainColor='blue'
-		secundaryColor='green'
-		confColor='blue'/>
-	      <RangeItemConfig
-		text='Descanso corto'
-		mainColor='blue'
-		secundaryColor='green'
-		confColor='blue'/>
-	      <RangeItemConfig
-		text='Descanso largo'
-		mainColor='blue'
-		secundaryColor='green'
-		confColor='blue'/>
-	      <ListItemConfig
-		text='Sonido y vibración'
-		btnIcon={ <UilMobileVibrate size='20' color='#4a4a4a'/> }
-		mainColor='blue'
-		secundaryColor='green'/>
+	      <View style={ commonConfigStyles.paddingSection }>
+		<ListItemConfig
+		  btnIcon={ <UilPlus size='20' color='#4a4a4a'/> }
+		  text='Perfil'
+		  mainColor={ pomodoroConf.confColor }
+		  secundaryColor={ shrotRestConf.confColor }/>
+	      </View>
+	      <View style={ commonConfigStyles.paddingSection }>
+		<RangeItemConfig
+		  text='Pomodoro'
+		  mainColor={ currentP.pomodoro_color }
+		  confColor={ pomodoroConf.confColor }
+		  mainColor={ pomodoroConf.confColor }
+		  confValue={ pomodoroConf.value }
+		  leftAction={ () => setPomodoroConf(Object.assign({}, {...pomodoroConf, value: pomodoroConf.value - 1})) }
+		  rightAction={ () => setPomodoroConf(Object.assign({}, {...pomodoroConf, value: pomodoroConf.value + 1})) }
+		  secundaryColor={ shrotRestConf.confColor }/>
+	      </View>
+	      <View style={ commonConfigStyles.paddingSection }>
+		<RangeItemConfig
+		  text='Descanso corto'
+		  confColor={ shrotRestConf.confColor }
+		  confValue={ shrotRestConf.value }
+		  mainColor={ pomodoroConf.confColor }
+		  leftAction={ () => setShortRestConf(Object.assign({}, {...shrotRestConf, value: shrotRestConf.value - 1})) }
+		  rightAction={ () => setShortRestConf(Object.assign({}, {...shrotRestConf, value: shrotRestConf.value + 1})) }
+		  secundaryColor={ shrotRestConf.confColor }/>
+	      </View>
+	      <View style={ commonConfigStyles.paddingSection }>
+		<RangeItemConfig
+		  text='Descanso largo'
+		  mainColor={ pomodoroConf.confColor }
+		  confValue={ longRestConf.value }
+		  secundaryColor={ shrotRestConf.confColor }
+		  leftAction={ () => setLongRestConf(Object.assign({}, {...longRestConf, value: longRestConf.value - 1})) }
+		  rightAction={ () => setLongRestConf(Object.assign({}, {...longRestConf, value: longRestConf.value + 1})) }
+		  confColor={ longRestConf.confColor }/>
+	      </View>
+	      <View style={ commonConfigStyles.paddingSection }>
+		<ListItemConfig
+		  text='Sonido y vibración'
+		  btnIcon={ <UilMobileVibrate size='20' color='#4a4a4a'/> }
+		  mainColor={ pomodoroConf.confColor }
+		  secundaryColor={ shrotRestConf.confColor }/>
+	      </View>
 	    </View>
 	    <View>
 	      <GlobalButtons>
@@ -80,6 +123,29 @@ export default function Settings({ isOpen, toggleMotal }) {
 	    </View>
 	  </View>
         </View>
+	{/* <SelectModal/> */}
+      </Modal>
+    </View>
+  );
+}
+
+const SelectModal = ({ children }) => {
+  return (
+    <View style={selectModalStyle.centeredView}>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={ true }>
+        <View style={selectModalStyle.centeredView}>
+          <View style={selectModalStyle.modalView}>
+            <Text style={selectModalStyle.modalText}>Hello World!</Text>
+            <Pressable
+              style={[selectModalStyle.button, selectModalStyle.buttonClose]}
+            >
+              <Text style={selectModalStyle.textStyle}>Hide Modal</Text>
+            </Pressable>
+          </View>
+        </View>
       </Modal>
     </View>
   );
@@ -92,18 +158,15 @@ const ListItemConfig = ({ text, mainColor, secundaryColor, confValue, confValues
 	style={ commonConfigStyles.text }>{ text }</Text>
       <View style={ listConfigStyles.configSection }>
 	<View
-	  style={ [listConfigStyles.common, listConfigStyles.picker] }>
+	  style={ [listConfigStyles.common, listConfigStyles.picker, { backgroundColor: mainColor }] }>
 	  <Picker
-	    selectedValue={ confValue }
-	    onValueChange={(itemValue, itemIndex) =>
-	      setSelectedLanguage(itemValue)
-	    }>
+	    selectedValue={ confValue }>
 	    <Picker.Item label="Java" value="java" />
 	    <Picker.Item label="JavaScript" value="js" />
 	  </Picker>
 	</View>
 	<View style={{ flex: 1 }}>
-	  <Pressable style={ [listConfigStyles.common, listConfigStyles.button] }>
+	  <Pressable style={ [listConfigStyles.common, listConfigStyles.button, { backgroundColor: secundaryColor }] }>
 	    { btnIcon }
 	  </Pressable>
 	</View>
@@ -118,22 +181,26 @@ const RangeItemConfig = ({ text, mainColor, secundaryColor, confColor, rightActi
       <View style={ rangeConfigStyles.titleContainer }>
 	<Text 
 	  style={ commonConfigStyles.text }>{ text }</Text>
-	<View style={ rangeConfigStyles.textColorContainer }>
-	  <Text>#E54881</Text>
+	<View style={ [rangeConfigStyles.textColorContainer, { backgroundColor: confColor }] }>
+	  <Text>{ confColor }</Text>
 	</View>
       </View>
       <View style={ listConfigStyles.configSection }>
 	<View style={{ flex: 1 }}>
-	  <Pressable style={ [listConfigStyles.common, listConfigStyles.button] }>
+	  <Pressable 
+	    style={ [listConfigStyles.common, listConfigStyles.button, { backgroundColor: secundaryColor }] }
+	    onPress={ () => leftAction() }>
 	    <UilAngleLeft size="60" color="#4A4A4A"/>
 	  </Pressable>
 	</View>
 	<View
-	  style={ [listConfigStyles.common, rangeConfigStyles.confValue] }>
-	  <Text style={ commonConfigStyles.text }>50</Text>
+	  style={ [listConfigStyles.common, rangeConfigStyles.confValue, { backgroundColor: mainColor }] }>
+	  <Text style={ commonConfigStyles.text }>{ confValue }</Text>
 	</View>
 	<View style={{ flex: 1 }}>
-	  <Pressable style={ [listConfigStyles.common, listConfigStyles.button] }>
+	  <Pressable 
+	    style={ [listConfigStyles.common, listConfigStyles.button, { backgroundColor: secundaryColor }] }
+	    onPress={ () => rightAction() }>
 	    <UilAngleRight size="60" color="#4A4A4A"/>
 	  </Pressable>
 	</View>
@@ -142,11 +209,58 @@ const RangeItemConfig = ({ text, mainColor, secundaryColor, confColor, rightActi
   );
 }
 
+const selectModalStyle = StyleSheet.create({
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2
+  },
+  buttonOpen: {
+    backgroundColor: "#F194FF",
+  },
+  buttonClose: {
+    backgroundColor: "#2196F3",
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center"
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center"
+  }
+});
+
 const commonConfigStyles = StyleSheet.create({
   text: {
     marginBottom: 10,
     fontSize: 20
   },
+  paddingSection: {
+    paddingBottom: 25
+  }
 });
 
 const rangeConfigStyles = StyleSheet.create({
@@ -178,8 +292,6 @@ const listConfigStyles = StyleSheet.create({
   },
   common: {
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'black',
   },
   button: {
     height: '100%',
