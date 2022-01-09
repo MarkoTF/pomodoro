@@ -247,6 +247,7 @@ const selectorColorStyles = StyleSheet.create({
     height: 80,
     width: 80,
     margin: 10,
+    borderRadius: 10
   },
   content: {
     flexDirection: 'row',

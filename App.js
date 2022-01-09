@@ -89,7 +89,7 @@ export default function App() {
   const toRender = currentP ? (
     <ProfileContext.Provider value={ currentP }>
       <NavigationContainer>
-	<Stack.Navigator initialRouteName="Home">
+	<Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
 	  <Stack.Screen name="Home" component={Home} />
 	  <Stack.Screen name="Settings" component={ Settings } />
 	</Stack.Navigator>
@@ -110,8 +110,9 @@ const Home = ({ navigation }) => {
   const isFocused = useIsFocused();
   const currentP = useContext(ProfileContext);
   const dimensions = useContext(PhoneDimentionsContext)
-  const [currentTime, setCurrentTime] = useState(7);
-  const [toggleMotal, setToggleModal] = useState(true);
+  const [currentTimeItem, setCurrentTimeItem] = useState({num: 0, color: currentP.user.pomodoro_color});
+  const [isPaused, setPaused] = useState(false);
+  const [timeString, setTimeString] = useState('0:0');
   const [timesItems, setTimesItems] = useState({
     works: {
       color: currentP.user.pomodoro_color,
@@ -131,13 +132,14 @@ const Home = ({ navigation }) => {
   });
   const [time, setTime] = useState({
     current: 0,
-    full: 120000
+    currentInverse: currentP.user.pomodoro_value * 60000,
+    full: currentP.user.pomodoro_value * 60000
   });
 
-  if (isFocused) {
-    console.log('fousc');
-    console.log(currentP.user)
-  }
+  // if (isFocused) {
+  //   console.log('fousc');
+  //   console.log(currentP.user)
+  // }
 
   useEffect(() => {
     setTimesItems({
@@ -157,7 +159,108 @@ const Home = ({ navigation }) => {
 	time: currentP.user.long_rest_value
       }
     });
-  }, [currentP]);
+    setTime({
+      current: 0,
+      full: currentP.user.pomodoro_value * 60000,
+      currentInverse: currentP.user.pomodoro_value * 60000,
+    });
+    setCurrentTimeItem({
+      num: 0,
+      color: currentP.user.pomodoro_color,
+    });
+    setPaused(true);
+  }, [currentP.user]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      console.log('here');
+      console.log(isPaused)
+      if (!isPaused) {
+	console.log(isPaused)
+	const current = time.current + 1000;
+	const currentInverse = time.currentInverse - 1000;
+	const calculateT = calcultateTime(currentInverse);
+	let currentString = calculateT.minutes + ':' + calculateT.seconds;
+	if (current >= time.full) {
+	  currentString = '0:0'
+	  setTimeString(currentString);
+	  // return () => clearInterval(timer);
+	  nextTime();
+	} else {
+	  setTimeString(currentString);
+	  setTime(Object.assign({}, {full: time.full, current: current, currentInverse: currentInverse}));
+	}
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [time, isPaused]);
+
+  const nextTime = () => {
+    console.log('-------------')
+    const fullTimes = timesItems.works.count + timesItems.rests.count + timesItems.longRest.count - 1;
+    let next = 0;
+    if (currentTimeItem.num < fullTimes) {
+      next = currentTimeItem.num + 1;
+    } else {
+      next = 0
+    }
+    const itemType = calculateType(next, fullTimes);
+    console.log(next)
+    console.log(itemType)
+    if (itemType === 'pomodoro') {
+      setCurrentTimeItem({
+	num: next,
+	color: timesItems.works.color,
+      });
+      setTime({
+	current: 0,
+	full: timesItems.works.time * 60000,
+	currentInverse: timesItems.works.time * 60000,
+      });
+    } else if (itemType === 'shortR') {
+      setCurrentTimeItem({
+	num: next,
+	color: timesItems.rests.color,
+      });
+      setTime({
+	current: 0,
+	currentInverse: timesItems.rests.time * 60000,
+	full: timesItems.rests.time * 60000
+      });
+    } else {
+      setCurrentTimeItem({
+	num: next,
+	color: timesItems.longRest.color,
+      });
+      setTime({
+	current: 0,
+	currentInverse: timesItems.longRest.time * 60000,
+	full: timesItems.longRest.time * 60000
+      });
+    }
+  }
+
+  const calculateType = (position, fullItems) => {
+    if (position === fullItems) {
+      return 'longR';
+    } else if (position % 2 === 0) {
+      return 'pomodoro';
+    } else {
+      return 'shortR'
+    }
+  }
+
+  const reestartPomodoro = () => {
+    setCurrentTimeItem({
+      num: 0,
+      color: timesItems.works.color,
+    });
+    setTime({
+      current: 0,
+      full: timesItems.works.time * 60000,
+      currentInverse: timesItems.works.time * 60000,
+    });
+  }
 
   return (
      <PhoneDimentionsContext.Provider value={{width: dimensions.width, height: dimensions.height}}>
@@ -166,7 +269,8 @@ const Home = ({ navigation }) => {
 	<View style={ styles.container }>
 	  <View>
 	    <GlobalButtons>
-	      <PButton>
+	      <PButton
+		action={ () => nextTime() }>
 		<UilSkipForward size="60" color="#4A4A4A"/>
 	      </PButton>
 	      <PButton
@@ -180,22 +284,24 @@ const Home = ({ navigation }) => {
 	      <AnalogClock
 		fullTime={ time.full }
 		currentTime={ time.current }
-		backColor='aqua'/>
+		backColor={ currentTimeItem.color }/>
 	      <DigitalClock
-		time={ time.full - time.current }/>
+		time={ timeString }/>
 	    </View>
 	    <Times
 	      works={ timesItems.works }
 	      rests={ timesItems.rests }
 	      longRest={ timesItems.longRest }
-	      current={ currentTime }/>
+	      current={ currentTimeItem.num }/>
 	  </View>
 	  <View>
 	    <GlobalButtons>
-	      <PButton>
+	      <PButton
+		action={ () => reestartPomodoro() }>
 		<UilRefresh size="60" color="#4A4A4A"/>
 	      </PButton>
-	      <PButton>
+	      <PButton
+		action={ () => setPaused(!isPaused) }>
 		<UilStopwatchSlash size="60" color="#4A4A4A"/>
 	      </PButton>
 	    </GlobalButtons>
@@ -204,6 +310,15 @@ const Home = ({ navigation }) => {
       </View>
     </PhoneDimentionsContext.Provider>
   );
+}
+
+const calcultateTime = (milliseconds) => {
+  const sec_num = milliseconds / 1000;
+  let seconds_used = 0;
+  const minutes = Math.floor(sec_num / 60);
+  if (minutes > 0) seconds_used += (minutes * 60);
+  const seconds = sec_num - seconds_used;
+  return { seconds: seconds, minutes: minutes }
 }
 
 const styles = StyleSheet.create({

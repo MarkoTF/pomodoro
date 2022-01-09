@@ -15,21 +15,21 @@ const windowHeight = Dimensions.get('window').height;
 
 export const AnalogClock = ({ backColor, fullTime, currentTime }) => {
   const currentDeg = 360 / fullTime * currentTime;
-  const restTime = fullTime - currentTime;
+  // const restTime = fullTime - currentTime;
 
-  const clockAni = useRef(new Animated.Value(0)).current;
-  const interpolateRotating = clockAni.interpolate({
-    inputRange: [0, 1],
-    outputRange: [currentDeg + 'deg', '360deg'],
-  });
+  // const clockAni = useRef(new Animated.Value(0)).current;
+  // const interpolateRotating = clockAni.interpolate({
+  //   inputRange: [0, 1],
+  //   outputRange: [currentDeg + 'deg', '360deg'],
+  // });
 
-  useEffect(() => {
-    Animated.timing(clockAni, {
-      toValue: 1,
-      duration: restTime,
-      useNativeDriver: true,
-    }).start();
-  });
+  // useEffect(() => {
+  //   Animated.timing(clockAni, {
+  //     toValue: 1,
+  //     duration: restTime,
+  //     useNativeDriver: true,
+  //   }).start();
+  // });
 
   return (
     <View style={ [analogStyle.container, { backgroundColor: backColor }] }>
@@ -37,7 +37,7 @@ export const AnalogClock = ({ backColor, fullTime, currentTime }) => {
 	style={ analogStyle.axis }
 	source={ require('../images/analog_clock_1.png') }>
 	<Animated.Image
-	  style={ [analogStyle.needle, { transform: [{rotateZ: interpolateRotating}] }] }
+	  style={ [analogStyle.needle, { transform: [{rotateZ: currentDeg + 'deg'}] }] }
 	  source={ require('../images/analog_clock_2.png') }/>
       </ImageBackground>
     </View>
@@ -48,26 +48,26 @@ export const DigitalClock = ({ time }) => {
   const [currentTime, setCurrentTime] = useState(time);
   const [timeString, setTimeString] = useState('0:0');
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const current = currentTime - 1000;
-      const calculateT = calcultateTime(current);
-      let currentString = calculateT.minutes + ':' + calculateT.seconds;
-      if (current <= 0) {
-	currentString = '0:0'
-	setTimeString(currentString);
-	return () => clearInterval(timer);
-      }
-      setTimeString(currentString);
-      setCurrentTime(current);
-    }, 1000);
-    return () => clearInterval(timer);
-  });
+  // useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     const current = currentTime - 1000;
+  //     const calculateT = calcultateTime(current);
+  //     let currentString = calculateT.minutes + ':' + calculateT.seconds;
+  //     if (current <= 0) {
+	// currentString = '0:0'
+	// setTimeString(currentString);
+	// return () => clearInterval(timer);
+  //     }
+  //     setTimeString(currentString);
+  //     setCurrentTime(current);
+  //   }, 1000);
+  //   return () => clearInterval(timer);
+  // });
 
   return (
     <Text 
       style={ digitalStyle.text }>
-      { timeString }
+      { time }
     </Text>
   );
 }

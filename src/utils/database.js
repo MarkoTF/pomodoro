@@ -11,30 +11,22 @@ export const openDatabase = () => {
 }
 
 export const changeActive = (id) => new Promise((resolve, reject) => {
-  console.log('el id', id)
   const db = openDatabase();
   db.transaction((tx) => {
     tx.executeSql(
       `UPDATE profile SET active = 0 WHERE active = 1;`, [],
       (_, desactiveRecord) => {
-	console.log('se actualiz[o el primero]')
 	tx.executeSql(
 	  `UPDATE profile SET active = 1 WHERE id = ?`, [id],
 	  (_, activeRecord) => {
-		console.log(id);
-	    console.log('se actualiz[o el seguno]')
 	    tx.executeSql(
 	      `SELECT * FROM profile WHERE id = ?`, [id],
 	      (_, saRecord) => {
-		console.log('Se creo con exito');
-		console.log(saRecord);
 		resolve(saRecord);
 	      }, (_, err) => {
-		console.log('error3', err, id);
 	      }
 	    )
 	  }, (_, err) => {
-	    console.log('error2');
 	    console.log(err);
 	  }
 	)
@@ -51,13 +43,10 @@ export const removeProfile = (id) => new Promise((resolve, reject) => {
     tx.executeSql(
       'DELETE FROM profile WHERE id = ?;', [id],
       (_, result) => {
-	console.log('delete from database');
 	tx.executeSql(
 	  'SELECT * FROM profile LIMIT 1;',[],
 	  (_, result) => {
-	    console.log(result);
 	    changeActive(result.rows._array[0].id).then((newActive) => {
-	      console.log(newActive);
 	      resolve(newActive);
 	    });
 	  }
