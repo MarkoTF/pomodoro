@@ -10,7 +10,8 @@ import {
   UilSkipForward,
   UilSetting,
   UilRefresh,
-  UilStopwatchSlash 
+  UilStopwatchSlash ,
+  UilPlayCircle
 } from '@iconscout/react-native-unicons';
 import { useState, useContext, useEffect } from 'react';
 import { AnalogClock, DigitalClock } from './src/components/Clock';
@@ -21,6 +22,7 @@ import { openDatabase, createRecord, getActivated } from './src/utils/database';
 import Settings from './src/views/Settings';
 import { NavigationContainer, useIsFocused } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Audio } from 'expo-av';
 
 const EXAMPLE_TIME = 2000;
 const db = openDatabase();
@@ -113,6 +115,7 @@ const Home = ({ navigation }) => {
   const [currentTimeItem, setCurrentTimeItem] = useState({num: 0, color: currentP.user.pomodoro_color});
   const [isPaused, setPaused] = useState(false);
   const [timeString, setTimeString] = useState('0:0');
+  const [sound, setSound] = useState();
   const [timesItems, setTimesItems] = useState({
     works: {
       color: currentP.user.pomodoro_color,
@@ -140,6 +143,13 @@ const Home = ({ navigation }) => {
   //   console.log('fousc');
   //   console.log(currentP.user)
   // }
+  useEffect(() => {
+    return sound
+      ? () => {
+          console.log('Unloading Sound');
+          sound.unloadAsync(); }
+      : undefined;
+  }, [sound]);
 
   useEffect(() => {
     setTimesItems({
@@ -186,6 +196,7 @@ const Home = ({ navigation }) => {
 	  setTimeString(currentString);
 	  // return () => clearInterval(timer);
 	  nextTime();
+	  playTone();
 	} else {
 	  setTimeString(currentString);
 	  setTime(Object.assign({}, {full: time.full, current: current, currentInverse: currentInverse}));
@@ -194,6 +205,17 @@ const Home = ({ navigation }) => {
     }, 1000);
     return () => clearInterval(timer);
   }, [time, isPaused]);
+
+  const playTone = async () => {
+    console.log('Loading Sound');
+    const { sound } = await Audio.Sound.createAsync(
+       require('./src/sounds/alarm-tone.wav')
+    );
+    setSound(sound);
+
+    console.log('Playing Sound');
+    await sound.playAsync();
+  }
 
   const nextTime = () => {
     console.log('-------------')
@@ -302,7 +324,12 @@ const Home = ({ navigation }) => {
 	      </PButton>
 	      <PButton
 		action={ () => setPaused(!isPaused) }>
-		<UilStopwatchSlash size="60" color="#4A4A4A"/>
+		{isPaused ? (
+		  <UilPlayCircle size="60" color="#4A4A4A"/>
+		) : (
+		  <UilStopwatchSlash size="60" color="#4A4A4A"/>
+		)}
+	
 	      </PButton>
 	    </GlobalButtons>
 	  </View>
