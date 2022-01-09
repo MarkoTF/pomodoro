@@ -47,8 +47,10 @@ export default function Settings({ isOpen, toggleMotal, navigation }) {
     value: currentP.user.long_rest_value,
   });
   const [soundAndVibrate, setSoundAndVibrate] = useState({
-    vibrate: currentP.user.sound,
-    sound: currentP.user.vibrate
+    vibrate: 1,
+    sound: 'noting',
+    // vibrate: currentP.user.vibrate,
+    // sound: currentP.user.sound
   });
 
   useEffect(() => {

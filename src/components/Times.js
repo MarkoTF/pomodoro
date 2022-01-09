@@ -29,7 +29,7 @@ export const Times = ({ longRest, works, rests, current }) => {
       }
     }
     return items;
-  }, [works.count, rests.count]);
+  }, [works, rests]);
 
   return (
     <View style={ styles.boxContainer }>

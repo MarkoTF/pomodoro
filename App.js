@@ -114,19 +114,19 @@ const Home = ({ navigation }) => {
   const [toggleMotal, setToggleModal] = useState(true);
   const [timesItems, setTimesItems] = useState({
     works: {
-      color: 'blue',
-      count: 4,
-      time: 2000
+      color: currentP.user.pomodoro_color,
+      count: currentP.user.pomodoro_times,
+      time: currentP.user.pomodoro_value
     },
     rests: {
-      color: 'green',
-      count: 3,
-      time: 1000
+      color: currentP.user.short_rest_color,
+      count: currentP.user.short_rest_times,
+      time: currentP.user.short_rest_value
     },
     longRest: {
-      color: 'gray',
-      count: 1,
-      time: 5000
+      color: currentP.user.long_rest_color,
+      count: currentP.user.long_rest_times,
+      time: currentP.user.long_rest_value
     }
   });
   const [time, setTime] = useState({
@@ -138,6 +138,26 @@ const Home = ({ navigation }) => {
     console.log('fousc');
     console.log(currentP.user)
   }
+
+  useEffect(() => {
+    setTimesItems({
+      works: {
+	color: currentP.user.pomodoro_color,
+	count: currentP.user.pomodoro_times,
+	time: currentP.user.pomodoro_value
+      },
+      rests: {
+	color: currentP.user.short_rest_color,
+	count: currentP.user.short_rest_times,
+	time: currentP.user.short_rest_value
+      },
+      longRest: {
+	color: currentP.user.long_rest_color,
+	count: currentP.user.long_rest_times,
+	time: currentP.user.long_rest_value
+      }
+    });
+  }, [currentP]);
 
   return (
      <PhoneDimentionsContext.Provider value={{width: dimensions.width, height: dimensions.height}}>
