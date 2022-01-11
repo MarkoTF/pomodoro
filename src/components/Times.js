@@ -7,6 +7,11 @@ import { PhoneDimentionsContext } from '../utils/context'
 import { useMemo, useContext } from 'react';
 
 export const Times = ({ longRest, works, rests, current }) => {
+  /**
+    * Define la forma y la lógina necesaria
+    * para que los items de los tiempos encajen en la pantalla
+    * de los celulares in pasarse en la anchura
+    * */
   const dimentions = useContext(PhoneDimentionsContext)
   const total_items = works.count + rests.count
   const times = useMemo(() => {

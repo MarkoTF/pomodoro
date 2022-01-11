@@ -6,6 +6,10 @@ import {
 } from 'react-native';
 
 export const GlobalButtons = ({ children }) => {
+  /**
+    * Componenete para definir como estarán
+    * ordenados los botónes globales
+    * */
   return (
     <View style={ styles.globalContainer }>
       { children }
@@ -14,6 +18,9 @@ export const GlobalButtons = ({ children }) => {
 }
 
 export const PButton = ({ children, action }) => {
+  /**
+    * Define la forma de los botodes globales
+    * */
   return (
     <Pressable
       onPress={ () => action() }>

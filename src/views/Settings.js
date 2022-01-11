@@ -26,7 +26,14 @@ import { NavigationContainer, useIsFocused } from '@react-navigation/native';
 
 const db = openDatabase();
 
-export default function Settings({ isOpen, toggleMotal, navigation }) {
+export default function Settings({ navigation }) {
+  /**
+    * Vista de ajustes
+    * Componenete con su propio estado que se inicia con
+    * el los datos del contexto global de app, pero que al cambiar
+    * los datos estos se guardan en sus respectivos estados. Esto
+    * permite realizar cambios y guardar la configuracioń 
+    * */
   const currentP = useContext(ProfileContext);
   const [profile, setProfile] = useState('java');
   const [toggleModal, setToggleModal] = useState(false);
@@ -227,6 +234,10 @@ export default function Settings({ isOpen, toggleMotal, navigation }) {
 }
 
 const SelectColor = ({ action }) => {
+  /**
+    * Componente que retorna los cuadros para
+    * seleccionar color
+    * */
   return (
     <View style={ selectorColorStyles.content }>
       <Pressable style={ [selectorColorStyles.square, { backgroundColor: '#5E8ED7' }] } onPress={ () => action('#5E8ED7') }></Pressable>
@@ -257,6 +268,10 @@ const selectorColorStyles = StyleSheet.create({
 });
 
 const SelectModal = ({ children, visible, toggleModal }) => {
+  /**
+    * Componente que retorna la estrucuta del modal.
+    * Mantenerlo separado permite una reutilización del mismo
+    * */
   return (
     <Modal
       animationType="slide"
@@ -278,6 +293,9 @@ const SelectModal = ({ children, visible, toggleModal }) => {
 }
 
 const ListItemConfig = ({ text, mainColor, secundaryColor, confValue, confValues, action, actionSelect, btnIcon }) => {
+  /**
+    * Componente para los ajustes de tipo lista
+    **/
   const items = confValues.map((profile) => {
     return (
       <Picker.Item key={ profile.id } label={ profile.name } value={ profile.id } />
@@ -309,6 +327,8 @@ const ListItemConfig = ({ text, mainColor, secundaryColor, confValue, confValues
 }
 
 const RangeItemConfig = ({ text, mainColor, secundaryColor, confColor, rightAction, leftAction, confValue, toggleModal }) => {
+  /**
+    * Componente para los ajustes de tipo rango*/
   return (
     <View>
       <View style={ rangeConfigStyles.titleContainer }>

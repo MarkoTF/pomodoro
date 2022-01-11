@@ -10,7 +10,22 @@ export const openDatabase = () => {
   return SQLite.openDatabase(DB_NAME);
 }
 
+/**
+  * Módulo de la base de datos
+  *
+  * En este modulo se encuentran las operaciones relacionadas
+  * al CRUD.
+  *
+  * Se hace uso de SQLite para tener una base de datos local
+  * */
+
 export const changeActive = (id) => new Promise((resolve, reject) => {
+  /**
+    * Cambia el perfil activado por el solicitado
+    *
+    * :parametro id: Es el id del perfil que se quere activa
+    * :return : Retorna los datos del perfil que se ha activado
+    * */
   const db = openDatabase();
   db.transaction((tx) => {
     tx.executeSql(
@@ -38,6 +53,16 @@ export const changeActive = (id) => new Promise((resolve, reject) => {
 });
 
 export const removeProfile = (id) => new Promise((resolve, reject) => {
+  /**
+    * Elimina de la base de datos el perfil dado
+    *
+    * Ya que el perfil a eliminar es el perfil que acutualmente 
+    * se encuentra ctivo, al eliminarlo es necesario activar
+    * uno nuevo
+    *
+    * :parámetro id: El id del perfil que se desea eliminar
+    * :return: devuelve los datos del nuevo perfil que se ha activado
+    * */
   const db = openDatabase();
   db.transaction((tx) => {
     tx.executeSql(
@@ -59,6 +84,24 @@ export const removeProfile = (id) => new Promise((resolve, reject) => {
 });
 
 export const createRecord = (name, active, pColor, pValue, pTimes, srColor, srValue, srTimes, lrColor, lsValue, lsTimes, sound, vibrate) => new Promise((resolve, reject) =>{
+  /**
+    * Crea perfil
+    *
+    * :parámetro name: el nombre que tendrá el perfil
+    * :parámetro active: Si el perfil estará activo o no al momento de su creación:
+    * :parametro pColor: El color del pomodoro
+    * :parámetro pValue: Los minútos que tendrá el pomodoor
+    * :parámetro pTimes: La catidad de veces que se repite un pomodoro
+    * :parámetro srColor: color del descanso corto
+    * :parámetro srValue: minutos que durará el descaso corto
+    * :parámetro srTimes: la cantidad de veces que se repetira el descanso corto
+    * :parámetro lrColor: Color del descanso largo
+    * :parámetro lsValue: Los minutos de duración del descanso largo
+    * :parámetro lsTimes: Las veces que se repetirá el descanso largo
+    * :parámetro sound: el sonido que se hará al terminar un pomodoro, un descanso corto o un descanso largo
+    * :parámetro vibrate: ¿el celular vibrará o no?
+    * :return: devuelve los datos del nuevo perfil creado
+    * */
   const db = openDatabase();
   db.transaction((tx) => {
     console.log('dentro tx')
@@ -94,6 +137,24 @@ export const createRecord = (name, active, pColor, pValue, pTimes, srColor, srVa
 });
 
 export const updateProfile = (id, name, active, pColor, pValue, pTimes, srColor, srValue, srTimes, lrColor, lsValue, lsTimes, sound, vibrate) => new Promise((resolve, reject) => {
+  /**
+    * Crea acutaliza perfil
+    *
+    * :parámetro name: el nombre que tendrá el perfil
+    * :parámetro active: Si el perfil estará activo o no al momento de su creación:
+    * :parametro pColor: El color del pomodoro
+    * :parámetro pValue: Los minútos que tendrá el pomodoor
+    * :parámetro pTimes: La catidad de veces que se repite un pomodoro
+    * :parámetro srColor: color del descanso corto
+    * :parámetro srValue: minutos que durará el descaso corto
+    * :parámetro srTimes: la cantidad de veces que se repetira el descanso corto
+    * :parámetro lrColor: Color del descanso largo
+    * :parámetro lsValue: Los minutos de duración del descanso largo
+    * :parámetro lsTimes: Las veces que se repetirá el descanso largo
+    * :parámetro sound: el sonido que se hará al terminar un pomodoro, un descanso corto o un descanso largo
+    * :parámetro vibrate: ¿el celular vibrará o no?
+    * :return: devuelve los datos del nuevo perfil actualizado
+    * */
   const db = openDatabase();
   console.log('update, database')
   db.transaction((tx) => {
@@ -124,6 +185,12 @@ export const updateProfile = (id, name, active, pColor, pValue, pTimes, srColor,
 });
 
 export const getActivated = () => new Promise((resolve, reject) => {
+  /**
+    * Devuelve los datos del perfil que se encuentra activado
+    * Este método es especialmente útil al momento de iniciar la app, ya
+    * que se consulta cual es el perfil que se encuentra guardado como
+    * activado
+    * */
   const db = openDatabase();
   let profile;
   db.transaction((tx) => {

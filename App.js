@@ -29,6 +29,18 @@ const db = openDatabase();
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  /**
+    * Componente principal (root) de la app. Se encarga de colocar
+    * los contextos necesario para que los compnentes hijos puedan consumirlos
+    * desde cualquier parte y culquier profundidad
+    *
+    * También se asegura de que la base de datos no esté vacía.
+    * Si no existe la tabla la crea y crea el primer perfil llamado
+    * default
+    *
+    * En este componente de definen las pantallas y cómo
+    * interactuarán entre ellas
+    * */
   const [currentP, setCurrentP] = useState(null);
 
   useEffect(() => {
@@ -109,6 +121,12 @@ export default function App() {
 }
 
 const Home = ({ navigation }) => {
+  /**
+    * Pantalla home
+    *
+    * La gran mayoría de su estado depende del perfil
+    * actual que se cuentra suministrado por el contexto
+    * */
   const isFocused = useIsFocused();
   const currentP = useContext(ProfileContext);
   const dimensions = useContext(PhoneDimentionsContext)
@@ -340,6 +358,12 @@ const Home = ({ navigation }) => {
 }
 
 const calcultateTime = (milliseconds) => {
+  /**
+    * Función que permite hacer la transformacón de 
+    * milesegundos a minutos y segundos en formato de String
+    *
+    * :parámetro milliseconds: milisegundos a convertir
+    * :return: retorna una cade de texto*/
   const sec_num = milliseconds / 1000;
   let seconds_used = 0;
   const minutes = Math.floor(sec_num / 60);

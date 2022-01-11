@@ -14,6 +14,9 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 export const AnalogClock = ({ backColor, fullTime, currentTime }) => {
+  /**
+    * Define la forma del reloj analógico
+    * */
   const currentDeg = 360 / fullTime * currentTime;
   // const restTime = fullTime - currentTime;
 
@@ -45,6 +48,9 @@ export const AnalogClock = ({ backColor, fullTime, currentTime }) => {
 }
 
 export const DigitalClock = ({ time }) => {
+  /**
+    * Define la forma del reloj digital
+    * */
   const [currentTime, setCurrentTime] = useState(time);
   const [timeString, setTimeString] = useState('0:0');
 
