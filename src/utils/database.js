@@ -17,6 +17,10 @@ export const openDatabase = () => {
   * al CRUD.
   *
   * Se hace uso de SQLite para tener una base de datos local
+  *
+  * Todas las funciones son promesas de javascript, de esta manera
+  * se evita que la pantalla del usuario quede bloqueada mientras
+  * se sesuelve una operación
   * */
 
 export const changeActive = (id) => new Promise((resolve, reject) => {
